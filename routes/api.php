@@ -26,8 +26,21 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['set.cabang'])->group(function () {
     Route::get('/user', [AuthController::class, 'getUser']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/v1/barang', [BarangController::class, 'index']);
 
+    Route::prefix('v1/barang')->group(function () {
+        Route::get('/', [BarangController::class, 'index']);
+        Route::get('/max-kode', [BarangController::class, 'maxKode']);  // ✅ Tambahkan
+        Route::get('/filter-options', [BarangController::class, 'filterOptions']);
+        Route::get('/distinct-values', [BarangController::class, 'distinctValues']);
+        Route::get('/v1/barang/all-distinct-values', [BarangController::class, 'allDistinctValues']);
+        Route::get('/{kode}/detail-stok', [BarangController::class, 'detailStok']); // ✅ TAMBAHKAN INI
+        Route::post('/', [BarangController::class, 'store']);           // ✅ TAMBAHKAN
+        Route::get('/{id}', [BarangController::class, 'show']);         // ✅ TAMBAHKAN
+        Route::put('/{id}', [BarangController::class, 'update']);       // ✅ TAMBAHKAN
+        Route::delete('/{id}', [BarangController::class, 'destroy']);   // ✅ TAMBAHKAN
+    });
+
+    // DO
     Route::prefix('do')->group(function () {
         Route::get('/', [DoController::class, 'index']);
         Route::get('/generate-number', [DoController::class, 'generateNumber']);
@@ -36,6 +49,20 @@ Route::middleware(['set.cabang'])->group(function () {
         Route::post('/', [DoController::class, 'store']);
         Route::put('/{nomor}', [DoController::class, 'update']);
         Route::delete('/{nomor}', [DoController::class, 'destroy']);
+    });
+
+     // CUSTOMER
+    Route::prefix('v1/customer')->group(function () {
+        Route::get('/', [CustomerController::class, 'index']);
+        Route::get('/max-kode', [CustomerController::class, 'maxKode']);
+        Route::get('/filter-options', [CustomerController::class, 'filterOptions']);
+        Route::get('/all-distinct-values', [CustomerController::class, 'allDistinctValues']);
+        Route::get('/distinct-values', [CustomerController::class, 'distinctValues']);
+        Route::get('/{id}/detail', [CustomerController::class, 'detail']);
+        Route::post('/', [CustomerController::class, 'store']);
+        Route::get('/{id}', [CustomerController::class, 'show']);
+        Route::put('/{id}', [CustomerController::class, 'update']);
+        Route::delete('/{id}', [CustomerController::class, 'destroy']);
     });
 
     // Gudang
@@ -124,5 +151,38 @@ Route::middleware(['set.cabang'])->group(function () {
         
         $items = $query->get();
         return response()->json(['success' => true, 'data' => $items]);
+    });
+
+     Route::get('/salesman', function (Request $request) {
+        $search = $request->query('search');
+        $query = DB::connection('mysql')
+            ->table('tsalesman')
+            ->select('sls_kode', 'sls_nama', 'sls_alamat');
+        
+        if ($search) {
+            $query->where('sls_kode', 'LIKE', "%{$search}%")
+                  ->orWhere('sls_nama', 'LIKE', "%{$search}%");
+        }
+        
+        $data = $query->limit(100)->get();
+        return response()->json(['success' => true, 'data' => $data]);
+    });
+    
+    // Jenis Customer
+    Route::get('/jenis-customer', function () {
+        $data = DB::connection('mysql')
+            ->table('tjeniscustomer')
+            ->select('jc_kode as kode', 'jc_nama as nama')
+            ->get();
+        return response()->json(['success' => true, 'data' => $data]);
+    });
+    
+    // Golongan Customer
+    Route::get('/golongan-customer', function () {
+        $data = DB::connection('mysql')
+            ->table('tgolongancustomer')
+            ->select('gc_kode as kode', 'gc_nama as nama')
+            ->get();
+        return response()->json(['success' => true, 'data' => $data]);
     });
 });
