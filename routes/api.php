@@ -27,18 +27,20 @@ Route::middleware(['set.cabang'])->group(function () {
     Route::get('/user', [AuthController::class, 'getUser']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::prefix('v1/barang')->group(function () {
-        Route::get('/', [BarangController::class, 'index']);
-        Route::get('/max-kode', [BarangController::class, 'maxKode']);  // ✅ Tambahkan
-        Route::get('/filter-options', [BarangController::class, 'filterOptions']);
-        Route::get('/distinct-values', [BarangController::class, 'distinctValues']);
-        Route::get('/v1/barang/all-distinct-values', [BarangController::class, 'allDistinctValues']);
-        Route::get('/{kode}/detail-stok', [BarangController::class, 'detailStok']); // ✅ TAMBAHKAN INI
-        Route::post('/', [BarangController::class, 'store']);           // ✅ TAMBAHKAN
-        Route::get('/{id}', [BarangController::class, 'show']);         // ✅ TAMBAHKAN
-        Route::put('/{id}', [BarangController::class, 'update']);       // ✅ TAMBAHKAN
-        Route::delete('/{id}', [BarangController::class, 'destroy']);   // ✅ TAMBAHKAN
-    });
+Route::prefix('v1/barang')->group(function () {
+    Route::get('/', [BarangController::class, 'index']);
+    Route::get('/all-detail-stok', [BarangController::class, 'allDetailStok']);
+    Route::get('/max-kode', [BarangController::class, 'maxKode']);
+    Route::get('/form-options', [BarangController::class, 'formOptions']);  
+    Route::get('/filter-options', [BarangController::class, 'filterOptions']);
+    Route::get('/all-distinct-values', [BarangController::class, 'allDistinctValues']);
+    Route::get('/{kode}/harga-khusus', [BarangController::class, 'hargaKhusus']);
+    Route::get('/{kode}/detail-stok', [BarangController::class, 'detailStok']);
+    Route::post('/', [BarangController::class, 'store']);
+    Route::get('/{id}', [BarangController::class, 'show']);
+    Route::put('/{id}', [BarangController::class, 'update']);
+    Route::delete('/{id}', [BarangController::class, 'destroy']);
+});
 
     // DO
     Route::prefix('do')->group(function () {

@@ -10,15 +10,24 @@ use Illuminate\Support\Facades\Log;
 
 class SetCabangDatabase
 {
-     public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        // 🔥 AMBIL DARI SESSION (bukan header)
-        $cabangDatabase = session('cabang_database');
-        $cabangKode = session('user.cabang_kode');
+        // 🔥 PRIORITAS 1: Baca dari HEADER (dikirim Nuxt)
+        $cabangDatabase = $request->header('X-Cabang-Database');
+        $cabangKode = $request->header('X-Cabang-Kode');
+        
+        // 🔥 PRIORITAS 2: Fallback ke SESSION (jika ada)
+        if (!$cabangDatabase) {
+            $cabangDatabase = session('cabang_database');
+        }
+        if (!$cabangKode) {
+            $cabangKode = session('user.cabang_kode');
+        }
         
         Log::info('SetCabangDatabase', [
             'cabang_database' => $cabangDatabase,
-            'cabang_kode' => $cabangKode
+            'cabang_kode' => $cabangKode,
+            'source' => $request->header('X-Cabang-Database') ? 'header' : 'session'
         ]);
         
         if (!$cabangDatabase) {
@@ -31,7 +40,7 @@ class SetCabangDatabase
         // Switch ke database cabang
         DatabaseManager::switchToCabang($cabangDatabase);
         
-        // 🔥 SIMPAN KODE CABANG KE REQUEST UNTUK DIGUNAKAN CONTROLLER
+        // Simpan kode cabang ke request untuk digunakan controller
         $request->merge(['cabang_kode' => $cabangKode]);
         
         return $next($request);
