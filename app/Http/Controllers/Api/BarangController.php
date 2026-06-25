@@ -171,11 +171,19 @@ public function index(Request $request)
         try {
             $barang = DB::connection('mysql')
                 ->table('tbarang')
+                ->leftJoin('tsupplier', 'sup_kode', '=', 'brg_sup_kode')
+                ->select(
+                    'tbarang.*',
+                    'sup_nama'
+                )
                 ->where('brg_kode', $id)
                 ->first();
 
             if (!$barang) {
-                return response()->json(['success' => false, 'message' => 'Barang tidak ditemukan'], 404);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Barang tidak ditemukan'
+                ], 404);
             }
 
             return response()->json([
@@ -189,20 +197,24 @@ public function index(Request $request)
                     'Merk' => $barang->brg_merk,
                     'Gudang' => $barang->brg_gdg_default,
                     'Pemasok' => $barang->brg_sup_kode,
-                    'IsAktif' => $barang->brg_isaktif,
-                    'IsStok' => $barang->brg_isstok,
-                    'IsExpired' => $barang->brg_isexpired,
-                    'Product_Focus' => $barang->brg_isproductfocus,
-                    'HargaBeli' => (float) $barang->brg_hrgbeli,
-                    'HargaJual' => (float) $barang->brg_hrgjual,
-                    'HET' => (float) $barang->brg_harga_min,
-                    'MinStok' => (int) $barang->brg_min_stok,
-                    'MaxStok' => (int) $barang->brg_max_stok,
-                    'DiscSalesman' => (float) $barang->brg_disc_sales,
+                    'PemasokNama' => $barang->sup_nama ?? '',
+                    'IsAktif' => $barang->brg_isaktif ?? 1,
+                    'IsStok' => $barang->brg_isstok ?? 1,
+                    'IsExpired' => $barang->brg_isexpired ?? 0,
+                    'Product_Focus' => $barang->brg_isproductfocus ?? 0,
+                    'HargaBeli' => (float) ($barang->brg_hrgbeli ?? 0),
+                    'HargaJual' => (float) ($barang->brg_hrgjual ?? 0),
+                    'HET' => (float) ($barang->brg_harga_min ?? 0),
+                    'MinStok' => (int) ($barang->brg_MIN_STOK ?? 0),
+                    'MaxStok' => (int) ($barang->brg_MAX_STOK ?? 0),
+                    'DiscSalesman' => (float) ($barang->brg_disc_sales ?? 0),
                 ]
             ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal mengambil data: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data: ' . $e->getMessage()
+            ], 500);
         }
     }
 
