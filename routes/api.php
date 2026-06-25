@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BarangController;
 use App\Http\Controllers\Api\DoController;
+use App\Http\Controllers\Api\MenuController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +25,41 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes (perlu middleware cabang)
 Route::middleware(['set.cabang'])->group(function () {
+
+    // 🔥 MENU PARENT
+    Route::get('/menu-parent', [MenuController::class, 'parentIndex']);
+    Route::post('/menu-parent', [MenuController::class, 'parentStore']);
+    Route::put('/menu-parent/{id}', [MenuController::class, 'parentUpdate']);
+    Route::delete('/menu-parent/{id}', [MenuController::class, 'parentDestroy']);
+    
+    // 🔥 MENU ITEMS
+    Route::get('/menu-items', [MenuController::class, 'index']);
+    Route::post('/menu-items', [MenuController::class, 'store']);
+    Route::put('/menu-items/{id}', [MenuController::class, 'update']);
+    Route::delete('/menu-items/{id}', [MenuController::class, 'destroy']);
+    
+    // 🔥 USER MENU
+    Route::get('/menu/user/{kode}', [MenuController::class, 'userMenu']);
+    
+    // Hak User
+    Route::get('/hak-user/{kode}', [MenuController::class, 'hakUser']);
+    Route::post('/hak-user', [MenuController::class, 'saveHakUser']);
+
     Route::get('/user', [AuthController::class, 'getUser']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+
+    // Menu Parent CRUD
+Route::get('/menu-parent', [MenuController::class, 'parentIndex']);
+Route::post('/menu-parent', [MenuController::class, 'parentStore']);
+Route::put('/menu-parent/{id}', [MenuController::class, 'parentUpdate']);
+Route::delete('/menu-parent/{id}', [MenuController::class, 'parentDestroy']);
+
+// Menu Items CRUD
+Route::get('/menu-items', [MenuController::class, 'index']);
+Route::post('/menu-items', [MenuController::class, 'store']);
+Route::put('/menu-items/{id}', [MenuController::class, 'update']);
+Route::delete('/menu-items/{id}', [MenuController::class, 'destroy']);
 
 Route::prefix('v1/barang')->group(function () {
     Route::get('/', [BarangController::class, 'index']);
