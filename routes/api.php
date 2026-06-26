@@ -21,10 +21,11 @@ use App\Services\DatabaseManager;
 */
 
 Route::get('/cabang', [AuthController::class, 'getCabangList']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/auth/refresh', [AuthController::class, 'refreshToken']);
 
 // Protected routes (perlu middleware cabang)
-Route::middleware(['set.cabang'])->group(function () {
+Route::middleware(['set.cabang', 'throttle:60,1'])->group(function () {
 
     // 🔥 MENU PARENT
     Route::get('/menu-parent', [MenuController::class, 'parentIndex']);
@@ -41,7 +42,8 @@ Route::middleware(['set.cabang'])->group(function () {
     // 🔥 USER MENU
     Route::get('/menu/user/{kode}', [MenuController::class, 'userMenu']);
     
-    // Hak User
+    // Hak User 
+    Route::get('/hak-user/all', [MenuController::class, 'allHakUser']);
     Route::get('/hak-user/{kode}', [MenuController::class, 'hakUser']);
     Route::post('/hak-user', [MenuController::class, 'saveHakUser']);
 

@@ -202,4 +202,29 @@ public function userMenu($kode)
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+   public function allHakUser()
+{
+    // Ambil semua user
+    $users = DB::connection('mysql')
+        ->table('tuser')
+        ->select('USER_KODE', 'USER_NAMA')
+        ->orderBy('USER_NAMA')
+        ->get();
+
+    // Ambil semua menu
+    $menus = DB::connection('mysql')
+        ->table('tmenu')
+        ->select('MEN_ID', 'MEN_NAMA2', 'men_route', 'men_parent_id')
+        ->orderBy('men_order')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'users' => $users,
+            'menus' => $menus
+        ]
+    ]);
+}
 }
