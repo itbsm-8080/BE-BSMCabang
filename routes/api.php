@@ -223,4 +223,12 @@ Route::prefix('v1/barang')->group(function () {
             ->get();
         return response()->json(['success' => true, 'data' => $data]);
     });
+
+
+      // ========== REPORTS ==========
+    $reportPath = 'App\Http\Controllers\Api\Report';
+    
+    // List Jurnal
+    Route::get('/report/list-jurnal', [$reportPath . '\ListJurnalController', 'index']);
+    Route::get('/report/list-jurnal/filters', [$reportPath . '\ListJurnalController', 'filters']);
 });
